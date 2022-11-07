@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    environment:
+      - MARIADB_ROOT_PASSWORD=password
+    volumes:
+      - $PWD/api_tests/scripts:/docker-entrypoint-initdb.d
+    ports:
+      - 3306:3306
+  api-mocks:
+    image: ajnasz/api-mock
+    container_name: api-mocks
+    volumes:
+      - $PWD/api_tests/api.md:/usr/src/app/api.md
+    ports:
+      - 3000:3000
+  cucumber_ubuntu:
+    build: api_tests
+    image: cucumber_ubuntu_compose
+    container_name: cucumber_ubuntu
+    volumes:
+      - $PWD/api_tests/test-output:/usr/src/api-tests/test-output
+    depends_on:
+      - api-mocks
+      - mariadb
